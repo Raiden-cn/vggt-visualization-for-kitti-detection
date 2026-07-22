@@ -1,283 +1,117 @@
-<div align="center">
-<h1>VGGT: Visual Geometry Grounded Transformer</h1>
+# VGGT + KITTI 3D 目标检测与 3D 点云重建可视化系统
 
-<a href="https://jytime.github.io/data/VGGT_CVPR25.pdf" target="_blank" rel="noopener noreferrer">
-  <img src="https://img.shields.io/badge/Paper-VGGT" alt="Paper PDF">
-</a>
-<a href="https://arxiv.org/abs/2503.11651"><img src="https://img.shields.io/badge/arXiv-2503.11651-b31b1b" alt="arXiv"></a>
-<a href="https://vgg-t.github.io/"><img src="https://img.shields.io/badge/Project_Page-green" alt="Project Page"></a>
-<a href="https://huggingface.co/spaces/facebook/vggt"><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
+本项目基于 Meta **VGGT (Visual Geometry Grounded Transformer)** 单图 3D 重建大模型，针对 **KITTI 数据集** 实现了**锚点物理深度对齐（Anchor-Based Physical Scale Alignment）**、**Ground Truth (红色) 与 预测 (绿色) 3D Bounding Box 联合渲染**、**类别动态筛选** 与 **交互式 Web 3D 浏览**。
 
+---
 
-**[Visual Geometry Group, University of Oxford](https://www.robots.ox.ac.uk/~vgg/)**; **[Meta AI](https://ai.facebook.com/research/)**
+## 🌟 核心功能亮点
 
+1. **锚点物理深度对齐 (Anchor-Based Physical Scale Alignment)**：
+   * 自动将 VGGT 单图预测的无量纲相对深度图，通过 3D 检测框锚点的真实物理深度 $Z_{\text{kitti}}$ 计算精确的缩放因子 $\text{scale}_{\text{global}}$。
+   * 利用 KITTI 相机真实内参矩阵 $P_2$ 进行 3D 反投影，生成**具备真实物理单位（米）**的绝对 3D 点云，使 3D 框完美包裹车辆点云，彻底解决点云与框漂移、悬空的问题。
+2. **Ground Truth (红色) 与 预测 (绿色) 联合对比**：
+   * **🔴 真实框 (GT)**：显示为高亮纯红色，提取自 KITTI 标准标签 `label_2/`。
+   * **🟢 预测框 (Pred)**：显示为高亮绿色，提取自检测模型输出 `./kitti_pred/data/`。
+3. **Web 端交互式 3D 控件**：
+   * 🏷️ **3D 文本标签开关**：自由切换是否显示 `GT: Car` 或 `Pred: Car 0.98` 标签。
+   * 🔍 **类别动态筛选 (Category Filter)**：按 `Car`、`Pedestrian`、`Cyclist`、`Truck`、`Van` 等类别单独或组合筛选展示。
+   * 📷 相机视锥体（Frustum）展示、点云置信度过滤与点大小调节。
 
-[Jianyuan Wang](https://jytime.github.io/), [Minghao Chen](https://silent-chen.github.io/), [Nikita Karaev](https://nikitakaraevv.github.io/), [Andrea Vedaldi](https://www.robots.ox.ac.uk/~vedaldi/), [Christian Rupprecht](https://chrirupp.github.io/), [David Novotny](https://d-novotny.github.io/)
-</div>
+---
 
-```bibtex
-@inproceedings{wang2025vggt,
-  title={VGGT: Visual Geometry Grounded Transformer},
-  author={Wang, Jianyuan and Chen, Minghao and Karaev, Nikita and Vedaldi, Andrea and Rupprecht, Christian and Novotny, David},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  year={2025}
-}
-```
+## 🛠️ 1. 环境安装指南 (Environment Setup)
 
-## Updates
-
-- [May 18, 2026] The next step of VGGT — **VGGT-Omega** — has been released! Check it out at [https://vggt-omega.github.io/](https://vggt-omega.github.io/).
-
-
-- [May 15, 2026] We fixed an implementation issue that was keeping redundant intermediate tensors in memory. With the same GPU memory budget, VGGT can now run on roughly 2-3x more input frames! See [VGGT-Omega](https://vggt-omega.github.io/) for more details.
-
-
-
-- [July 29, 2025] We've updated the license for VGGT to permit **commercial use** (excluding military applications). All code in this repository is now under a commercial-use-friendly license. However, only the newly released checkpoint [**VGGT-1B-Commercial**](https://huggingface.co/facebook/VGGT-1B-Commercial) is licensed for commercial usage — the original checkpoint remains non-commercial. Full license details are available [here](https://github.com/facebookresearch/vggt/blob/main/LICENSE.txt). Access to the checkpoint requires completing an application form, which is processed by a system similar to LLaMA's approval workflow, automatically. The new checkpoint delivers similar performance to the original model. Please submit an issue if you notice a significant performance discrepancy.
-
-
-
-- [July 6, 2025] Training code is now available in the `training` folder, including an example to finetune VGGT on a custom dataset. 
-
-
-- [June 13, 2025] Honored to receive the Best Paper Award at CVPR 2025! Apologies if I’m slow to respond to queries or GitHub issues these days. If you’re interested, our oral presentation is available [here](https://docs.google.com/presentation/d/1JVuPnuZx6RgAy-U5Ezobg73XpBi7FrOh/edit?usp=sharing&ouid=107115712143490405606&rtpof=true&sd=true). Another long presentation can be found [here](https://docs.google.com/presentation/d/1aSv0e5PmH1mnwn2MowlJIajFUYZkjqgw/edit?usp=sharing&ouid=107115712143490405606&rtpof=true&sd=true) (Note: it’s shared in .pptx format with animations — quite large, but feel free to use it as a template if helpful.)
-
-
-- [June 2, 2025] Added a script to run VGGT and save predictions in COLMAP format, with bundle adjustment support optional. The saved COLMAP files can be directly used with [gsplat](https://github.com/nerfstudio-project/gsplat) or other NeRF/Gaussian splatting libraries.
-
-
-- [May 3, 2025] Evaluation code for reproducing our camera pose estimation results on Co3D is now available in the [evaluation](https://github.com/facebookresearch/vggt/tree/evaluation) branch. 
-
-
-## Overview
-
-Visual Geometry Grounded Transformer (VGGT, CVPR 2025) is a feed-forward neural network that directly infers all key 3D attributes of a scene, including extrinsic and intrinsic camera parameters, point maps, depth maps, and 3D point tracks, **from one, a few, or hundreds of its views, within seconds**.
-
-
-## Quick Start
-
-First, clone this repository to your local machine, and install the dependencies (torch, torchvision, numpy, Pillow, and huggingface_hub). 
+建议在 Linux 环境下使用 Conda 创建独立的 Python 3.10 环境。**注意：为避免 Conda 重新覆盖系统 CUDA，推荐优先使用 pip 安装 PyTorch。**
 
 ```bash
-git clone git@github.com:facebookresearch/vggt.git 
-cd vggt
-pip install -r requirements.txt
+# 1. 创建并激活 Conda 环境
+conda create -n vggt python=3.10 -y
+conda activate vggt
+
+# 2. 安装 PyTorch (以 CUDA 12.1 为例)
+pip install torch==2.4.0 torchvision==0.19.0 --index-url https://download.pytorch.org/whl/cu121
+
+# 3. 安装项目核心依赖
+pip install viser trimesh scipy matplotlib einops safetensors huggingface_hub
+
+# 4. 以可编辑模式安装 vggt 源码包
+pip install -e .
 ```
 
-Alternatively, you can install VGGT as a package (<a href="docs/package.md">click here</a> for details).
+---
 
+## 📂 2. 数据集与预测结果路径配置 (Dataset & Path Setup)
 
-Now, try the model with just a few lines of code:
+打开核心启动文件 **`output_kitti_val_3d/kitti_val_3d_app.py`**，在 `main()` 函数顶部可以灵活修改数据集与预测结果路径：
 
 ```python
-import torch
-from vggt.models.vggt import VGGT
-from vggt.utils.load_fn import load_and_preprocess_images
+# 位于 output_kitti_val_3d/kitti_val_3d_app.py 中的配置部分：
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-# bfloat16 is supported on Ampere GPUs (Compute Capability 8.0+) 
-dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-
-# Initialize the model and load the pretrained weights.
-# This will automatically download the model weights the first time it's run, which may take a while.
-model = VGGT.from_pretrained("facebook/VGGT-1B").to(device)
-
-# Load and preprocess example images (replace with your own image paths)
-image_names = ["path/to/imageA.png", "path/to/imageB.png", "path/to/imageC.png"]  
-images = load_and_preprocess_images(image_names).to(device)
-
-with torch.no_grad():
-    with torch.cuda.amp.autocast(dtype=dtype):
-        # Predict attributes including cameras, depth maps, and point maps.
-        predictions = model(images)
+val_txt   = "/root/dataset/kitti/ImageSets/val.txt"       # KITTI 验证集清单文件
+img_dir   = "/root/dataset/kitti/training/image_2"        # KITTI 图像存放目录 (.png)
+calib_dir = "/root/dataset/kitti/training/calib"          # KITTI 相机标定文件目录 (.txt)
+gt_dir    = "/root/dataset/kitti/training/label_2"         # KITTI GT 标签目录 (.txt)
+pred_dir  = "./kitti_pred/data"                            # 3D 检测模型预测结果目录 (.txt)
+port      = 12342                                          # Web 可视化服务端口
 ```
 
-The model weights will be automatically downloaded from Hugging Face. If you encounter issues such as slow loading, you can manually download them [here](https://huggingface.co/facebook/VGGT-1B/blob/main/model.pt) and load, or:
+### 📁 推荐的目录摆放结构：
 
-```python
-model = VGGT()
-_URL = "https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt"
-model.load_state_dict(torch.hub.load_state_dict_from_url(_URL))
+```text
+your_project_root/
+├── output_kitti_val_3d/
+│   └── kitti_val_3d_app.py          # 🚀 主程序
+├── kitti_pred/
+│   └── data/                        # 📂 存放您的 3D 检测预测结果文件
+│       ├── 000001.txt
+│       ├── 000002.txt
+│       └── ...
+└── vggt/                            # VGGT 核心模型代码
 ```
 
-## Detailed Usage
-
-<details>
-<summary>Click to expand</summary>
-
-You can also optionally choose which attributes (branches) to predict, as shown below. This achieves the same result as the example above. This example uses a batch size of 1 (processing a single scene), but it naturally works for multiple scenes.
-
-```python
-from vggt.utils.pose_enc import pose_encoding_to_extri_intri
-from vggt.utils.geometry import unproject_depth_map_to_point_map
-
-with torch.no_grad():
-    with torch.cuda.amp.autocast(dtype=dtype):
-        images = images[None]  # add batch dimension
-        aggregated_tokens_list, ps_idx = model.aggregator(images)
-                
-    # Predict Cameras
-    pose_enc = model.camera_head(aggregated_tokens_list)[-1]
-    # Extrinsic and intrinsic matrices, following OpenCV convention (camera from world)
-    extrinsic, intrinsic = pose_encoding_to_extri_intri(pose_enc, images.shape[-2:])
-
-    # Predict Depth Maps
-    depth_map, depth_conf = model.depth_head(aggregated_tokens_list, images, ps_idx)
-
-    # Predict Point Maps
-    point_map, point_conf = model.point_head(aggregated_tokens_list, images, ps_idx)
-        
-    # Construct 3D Points from Depth Maps and Cameras
-    # which usually leads to more accurate 3D points than point map branch
-    point_map_by_unprojection = unproject_depth_map_to_point_map(depth_map.squeeze(0), 
-                                                                extrinsic.squeeze(0), 
-                                                                intrinsic.squeeze(0))
-
-    # Predict Tracks
-    # choose your own points to track, with shape (N, 2) for one scene
-    query_points = torch.FloatTensor([[100.0, 200.0], 
-                                        [60.72, 259.94]]).to(device)
-    track_list, vis_score, conf_score = model.track_head(aggregated_tokens_list, images, ps_idx, query_points=query_points[None])
+### 📄 预测结果文本格式说明：
+`./kitti_pred/data/{val_id}.txt` 需遵循 KITTI 官方标准 16 列格式：
+```text
+# 类型  truncation  occlusion  alpha  u1      v1      u2      v2      h     w     l     x     y     z     ry    score
+Car     0.00        0          0.00   192.37  402.31  374.00  1.60    1.57  3.23  -2.70 1.74  3.68  -1.29 0.95
 ```
 
+---
 
-Furthermore, if certain pixels in the input frames are unwanted (e.g., reflective surfaces, sky, or water), you can simply mask them by setting the corresponding pixel values to 0 or 1. Precise segmentation masks aren't necessary - simple bounding box masks work effectively (check this [issue](https://github.com/facebookresearch/vggt/issues/47) for an example).
+## 🚀 3. 快速运行与远程浏览 (Quick Start)
 
-</details>
-
-
-## Interactive Demo
-
-We provide multiple ways to visualize your 3D reconstructions. Before using these visualization tools, install the required dependencies:
+### 步骤 1：启动 3D 可视化服务
 
 ```bash
-pip install -r requirements_demo.txt
+conda activate vggt
+python output_kitti_val_3d/kitti_val_3d_app.py
 ```
+*程序会自动载入 `val.txt` 中前 10 帧图像与对应的 3D 预测/GT 标签，完成后启动 Viser Web 服务。*
 
-### Interactive 3D Visualization
+### 步骤 2：SSH 端口转发 (SSH Tunnel)
 
-**Please note:** VGGT typically reconstructs a scene in less than 1 second. However, visualizing 3D points may take tens of seconds due to third-party rendering, independent of VGGT's processing time. The visualization is slow especially when the number of images is large.
-
-
-#### Gradio Web Interface
-
-Our Gradio-based interface allows you to upload images/videos, run reconstruction, and interactively explore the 3D scene in your browser. You can launch this in your local machine or try it on [Hugging Face](https://huggingface.co/spaces/facebook/vggt).
-
+在**您自己的本地电脑终端**（非服务器终端）运行以下命令将端口转发至本地：
 
 ```bash
-python demo_gradio.py
+ssh -L 12342:localhost:12342 user@your_server_ip
 ```
 
-<details>
-<summary>Click to preview the Gradio interactive interface</summary>
+### 步骤 3：在本地浏览器中查看
 
-![Gradio Web Interface Preview](https://jytime.github.io/data/vggt_hf_demo_screen.png)
-</details>
+在本地浏览器中打开：👉 **[http://localhost:12342](http://localhost:12342)**
 
+---
 
-#### Viser 3D Viewer
+## 🎛️ 4. Web UI 界面控制指南
 
-Run the following command to run reconstruction and visualize the point clouds in viser. Note this script requires a path to a folder containing images. It assumes only image files under the folder. You can set `--use_point_map` to use the point cloud from the point map branch, instead of the depth-based point cloud.
+进入网页端后，左侧面板包含以下核心控制选项：
 
-```bash
-python demo_viser.py --image_folder path/to/your/images/folder
-```
-
-## Exporting to COLMAP Format
-
-We also support exporting VGGT's predictions directly to COLMAP format, by:
-
-```bash 
-# Feedforward prediction only
-python demo_colmap.py --scene_dir=/YOUR/SCENE_DIR/ 
-
-# With bundle adjustment
-python demo_colmap.py --scene_dir=/YOUR/SCENE_DIR/ --use_ba
-
-# Run with bundle adjustment using reduced parameters
-# Reduces max_query_pts from 4096 (default) to 2048 and query_frame_num from 8 (default) to 5
-# Trade-off: Potentially less robust reconstruction in complex scenes (you may consider setting query_frame_num equal to your total number of images) 
-# See demo_colmap.py for additional bundle adjustment configuration options
-python demo_colmap.py --scene_dir=/YOUR/SCENE_DIR/ --use_ba --max_query_pts=2048 --query_frame_num=5
-```
-
-Please ensure that the images are stored in `/YOUR/SCENE_DIR/images/`. This folder should contain only the images. Check the examples folder for the desired data structure. 
-
-The reconstruction result (camera parameters and 3D points) will be automatically saved under `/YOUR/SCENE_DIR/sparse/` in the COLMAP format, such as:
-
-``` 
-SCENE_DIR/
-├── images/
-└── sparse/
-    ├── cameras.bin
-    ├── images.bin
-    └── points3D.bin
-```
-
-## Integration with Gaussian Splatting
-
-
-The exported COLMAP files can be directly used with [gsplat](https://github.com/nerfstudio-project/gsplat) for Gaussian Splatting training. Install `gsplat` following their official instructions (we recommend `gsplat==1.3.0`):
-
-An example command to train the model is:
-```
-cd gsplat
-python examples/simple_trainer.py  default --data_factor 1 --data_dir /YOUR/SCENE_DIR/ --result_dir /YOUR/RESULT_DIR/
-```
-
-
-
-## Zero-shot Single-view Reconstruction
-
-Our model shows surprisingly good performance on single-view reconstruction, although it was never trained for this task. The model does not need to duplicate the single-view image to a pair, instead, it can directly infer the 3D structure from the tokens of the single view image. Feel free to try it with our demos above, which naturally works for single-view reconstruction.
-
-
-We did not quantitatively test monocular depth estimation performance ourselves, but [@kabouzeid](https://github.com/kabouzeid) generously provided a comparison of VGGT to recent methods [here](https://github.com/facebookresearch/vggt/issues/36). VGGT shows competitive or better results compared to state-of-the-art monocular approaches such as DepthAnything v2 or MoGe, despite never being explicitly trained for single-view tasks. 
-
-## Research Progression
-
-Our work builds upon a series of previous research projects. If you're interested in understanding how our research evolved, check out our previous works:
-
-
-<table border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td align="left">
-      <a href="https://github.com/jytime/Deep-SfM-Revisited">Deep SfM Revisited</a>
-    </td>
-    <td style="white-space: pre;">──┐</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td align="left">
-      <a href="https://github.com/facebookresearch/PoseDiffusion">PoseDiffusion</a>
-    </td>
-    <td style="white-space: pre;">─────►</td>
-    <td>
-      <a href="https://github.com/facebookresearch/vggsfm">VGGSfM</a> ──►
-      <a href="https://github.com/facebookresearch/vggt">VGGT</a>
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-      <a href="https://github.com/facebookresearch/co-tracker">CoTracker</a>
-    </td>
-    <td style="white-space: pre;">──┘</td>
-    <td></td>
-  </tr>
-</table>
-
-
-## Acknowledgements
-
-Thanks to these great repositories: [PoseDiffusion](https://github.com/facebookresearch/PoseDiffusion), [VGGSfM](https://github.com/facebookresearch/vggsfm), [CoTracker](https://github.com/facebookresearch/co-tracker), [DINOv2](https://github.com/facebookresearch/dinov2), [Dust3r](https://github.com/naver/dust3r), [Moge](https://github.com/microsoft/moge), [PyTorch3D](https://github.com/facebookresearch/pytorch3d), [Sky Segmentation](https://github.com/xiongzhu666/Sky-Segmentation-and-Post-processing), [Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2), [Metric3D](https://github.com/YvanYin/Metric3D) and many other inspiring works in the community.
-
-## Checklist
-
-- [x] Release the training code
-- [ ] Release VGGT-500M and VGGT-200M
-
-
-## License
-See the [LICENSE](./LICENSE.txt) file for details about the license under which this code is made available.
-
-Please note that only this [model checkpoint](https://huggingface.co/facebook/VGGT-1B-Commercial) allows commercial usage. This new checkpoint achieves the same performance level (might be slightly better) as the original one, e.g., AUC@30: 90.37 vs. 89.98 on the Co3D dataset.
+| 控制项 | 功能说明 |
+| :--- | :--- |
+| **`Select Val Scene`** | 下拉框自由选择切换 10 个独立场景 |
+| **`Show GT 3D Boxes (Red)`** | ☑ 勾选/取消勾选显示红色 Ground Truth 真实框 |
+| **`Show Prediction 3D Boxes (Green)`** | ☑ 勾选/取消勾选显示高亮绿色模型预测框 |
+| **`Show 3D Text Labels`** | ☑ 勾选/取消勾选显示 `GT: Car` 或 `Pred: Car 0.98` 标签 |
+| **`Category Filter`** | 折叠菜单中可自由勾选显示/隐藏 `Car`、`Pedestrian`、`Cyclist`、`Truck` 等类别 |
+| **`Show Camera Frustum`** | ☑ 显示相机视锥体与拍摄视角 |
+| **`Confidence Filter (%)`** | 调节点云置信度阈值过滤背景噪点 |
