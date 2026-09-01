@@ -1,0 +1,42 @@
+[2026-08-16 21:00:33] INFO Log file: outputs/vggt_monodetr_kitti_1280x384/logs/train_20260816_210033.log
+[2026-08-16 21:00:33] INFO Config: {'dataset': 'kitti', 'root_dir': '/root/dataset/kitti', 'writelist': ['Pedestrian', 'Car', 'Cyclist'], 'class_merging': False, 'use_dontcare': False, 'use_3d_center': True, 'bbox2d_type': 'anno', 'meanshape': True, 'clip_2d': False, 'aug_pd': True, 'aug_crop': False, 'aug_calib': False, 'random_flip': 0.5, 'random_crop': 0.5, 'scale': 0.4, 'shift': 0.1, 'depth_scale': 'normal', 'vggt_w': 1280, 'vggt_h': 384, 'num_classes': 3, 'num_queries': 50, 'num_feature_levels': 4, 'hidden_dim': 256, 'group_num': 11, 'aux_loss': True, 'with_box_refine': True, 'two_stage': False, 'init_box': False, 'use_dab': False, 'two_stage_dino': False, 'use_dn': False, 'enc_layers': 6, 'dec_layers': 6, 'dim_feedforward': 1024, 'dropout': 0.1, 'nheads': 8, 'enc_n_points': 4, 'dec_n_points': 4, 'num_patterns': 0, 'return_intermediate_dec': True, 'set_cost_class': 2.0, 'set_cost_bbox': 5.0, 'set_cost_giou': 2.0, 'set_cost_3dcenter': 10.0, 'depth_min': '1e-3', 'depth_max': 80.0, 'num_depth_bins': 80, 'cls_loss_coef': 2.0, 'bbox_loss_coef': 5.0, 'giou_loss_coef': 2.0, 'dim_loss_coef': 1.0, 'angle_loss_coef': 1.0, 'depth_loss_coef': 1.0, '3dcenter_loss_coef': 10.0, 'focal_alpha': 0.25, 'max_epoch': 100, 'batch_size': 2, 'num_workers': 4, 'lr': 0.0002, 'lr_backbone': 0.0, 'weight_decay': 0.0001, 'clip_max_norm': 0.1, 'lr_drop': 90, 'warmup_min_lr': 1e-06, 'warmup_epochs': 5, 'save_path': 'outputs', 'experiment_name': 'vggt_monodetr_kitti_1280x384', 'resume_model': False, 'score_threshold': 0.2}
+[2026-08-16 21:00:33] INFO World size: 5, Output: outputs/vggt_monodetr_kitti_1280x384
+[2026-08-16 21:00:33] INFO Train: 3712 samples | Val: 3769 samples
+[2026-08-16 21:00:47] INFO Rank 0: trainable tensors=471, params=18,854,629
+[2026-08-16 21:00:49] INFO ============================================================
+[2026-08-16 21:00:49] INFO Starting training...
+[2026-08-16 21:00:49] INFO ============================================================
+[2026-08-16 21:01:32] INFO Epoch[0] [37/371]  total=50.7249  loss_ce=0.2342  loss_bbox=0.0852  loss_depth=3.2470  loss_center=0.0609
+[2026-08-16 21:02:12] INFO Epoch[0] [74/371]  total=95.2849  loss_ce=0.5419  loss_bbox=0.1702  loss_depth=5.4155  loss_center=0.0899
+[2026-08-16 21:02:53] INFO Epoch[0] [111/371]  total=19.7289  loss_ce=0.1827  loss_bbox=0.0211  loss_depth=1.0889  loss_center=0.0136
+[2026-08-16 21:03:33] INFO Epoch[0] [148/371]  total=97.4837  loss_ce=0.6350  loss_bbox=0.1554  loss_depth=5.8527  loss_center=0.0983
+[2026-08-16 21:04:14] INFO Epoch[0] [185/371]  total=86.2406  loss_ce=0.5562  loss_bbox=0.1033  loss_depth=6.8427  loss_center=0.0739
+[2026-08-16 21:04:55] INFO Epoch[0] [222/371]  total=25.4757  loss_ce=0.1890  loss_bbox=0.0215  loss_depth=1.4773  loss_center=0.0264
+[2026-08-16 21:05:36] INFO Epoch[0] [259/371]  total=27.9516  loss_ce=0.2409  loss_bbox=0.0434  loss_depth=1.6330  loss_center=0.0214
+[2026-08-16 21:06:16] INFO Epoch[0] [296/371]  total=60.1069  loss_ce=0.3629  loss_bbox=0.0895  loss_depth=3.7005  loss_center=0.0456
+[2026-08-16 21:06:57] INFO Epoch[0] [333/371]  total=55.3284  loss_ce=0.3026  loss_bbox=0.0493  loss_depth=3.1779  loss_center=0.0436
+[2026-08-16 21:07:37] INFO Epoch[0] [370/371]  total=121.8859  loss_ce=0.7174  loss_bbox=0.1250  loss_depth=7.5849  loss_center=0.0802
+[2026-08-16 21:07:39] INFO Epoch [0/99] avg_loss=60.3105  time=409.3s  lr=2.00e-04
+[2026-08-16 21:13:17] INFO ==> Loading detections and GTs...
+[2026-08-16 21:13:18] INFO ==> Evaluating (official)...
+[2026-08-16 21:22:52] INFO Pedestrian AP@0.50, 0.50, 0.50:
+bbox AP:0.0000, 0.0000, 0.0000
+bev  AP:0.0000, 0.0000, 0.0000
+3d   AP:0.0000, 0.0000, 0.0000
+aos  AP:0.00, 0.00, 0.00
+Pedestrian AP_R40@0.50, 0.50, 0.50:
+bbox AP:0.0000, 0.0000, 0.0000
+bev  AP:0.0000, 0.0000, 0.0000
+3d   AP:0.0000, 0.0000, 0.0000
+aos  AP:0.00, 0.00, 0.00
+Pedestrian AP@0.50, 0.25, 0.25:
+bbox AP:0.0000, 0.0000, 0.0000
+bev  AP:0.0000, 0.0000, 0.0000
+3d   AP:0.0000, 0.0000, 0.0000
+aos  AP:0.00, 0.00, 0.00
+Pedestrian AP_R40@0.50, 0.25, 0.25:
+bbox AP:0.0000, 0.0000, 0.0000
+bev  AP:0.0000, 0.0000, 0.0000
+3d   AP:0.0000, 0.0000, 0.0000
+aos  AP:0.00, 0.00, 0.00
+

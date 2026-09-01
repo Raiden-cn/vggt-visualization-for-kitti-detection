@@ -1,0 +1,88 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# VGGT-MonoDETR KITTI 3D Detection Config
+# ─────────────────────────────────────────────────────────────────────────────
+
+# === Dataset ===
+dataset: kitti
+root_dir: /root/dataset/kitti
+writelist: ['Pedestrian', 'Car', 'Cyclist']  # classes to detect
+class_merging: false
+use_dontcare: false
+use_3d_center: true
+bbox2d_type: anno
+meanshape: true
+clip_2d: false
+aug_pd: true
+aug_crop: false
+aug_calib: false
+random_flip: 0.5
+random_crop: 0.5
+scale: 0.4
+shift: 0.1
+depth_scale: normal
+
+# === VGGT Input ===
+# KITTI 1242x375 -> VGGT crop mode -> 518x154 -> patch grid 37x11
+vggt_w: 518
+vggt_h: 154
+
+# === Model ===
+num_classes: 3
+num_queries: 50
+num_feature_levels: 4
+hidden_dim: 256
+group_num: 11
+aux_loss: true
+with_box_refine: true
+two_stage: false
+init_box: false
+use_dab: false
+two_stage_dino: false
+use_dn: false
+
+# Transformer
+enc_layers: 6
+dec_layers: 6
+dim_feedforward: 1024
+dropout: 0.1
+nheads: 8
+enc_n_points: 4
+dec_n_points: 4
+num_patterns: 0
+return_intermediate_dec: true
+set_cost_class: 2.0
+set_cost_bbox: 5.0
+set_cost_giou: 2.0
+set_cost_3dcenter: 10.0
+
+# Depth
+depth_min: 1e-3
+depth_max: 80.0
+num_depth_bins: 80
+
+# === Loss Weights ===
+cls_loss_coef: 2.0
+bbox_loss_coef: 5.0
+giou_loss_coef: 2.0
+dim_loss_coef: 1.0
+angle_loss_coef: 1.0
+depth_loss_coef: 1.0
+3dcenter_loss_coef: 10.0
+focal_alpha: 0.25
+
+# === Training ===
+max_epoch: 100
+batch_size: 6          # per GPU
+num_workers: 4
+lr: 2.0e-4
+lr_backbone: 0.0       # VGGT backbone is frozen, adaptor uses lr
+weight_decay: 1.0e-4
+clip_max_norm: 0.1
+lr_drop: 90            # epoch to drop LR
+warmup_min_lr: 1.0e-6
+warmup_epochs: 5
+save_path: outputs
+resume_model: false
+
+# === Inference ===
+score_threshold: 0.2

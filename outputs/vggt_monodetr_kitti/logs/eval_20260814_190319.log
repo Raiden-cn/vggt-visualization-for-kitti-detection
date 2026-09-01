@@ -1,0 +1,74 @@
+[2026-08-14 19:03:19] INFO Log file: outputs/vggt_monodetr_kitti/logs/eval_20260814_190319.log
+[2026-08-14 19:03:19] INFO Config: {'dataset': 'kitti', 'root_dir': '/root/dataset/kitti', 'writelist': ['Pedestrian', 'Car', 'Cyclist'], 'class_merging': False, 'use_dontcare': False, 'use_3d_center': True, 'bbox2d_type': 'anno', 'meanshape': True, 'clip_2d': False, 'aug_pd': True, 'aug_crop': False, 'aug_calib': False, 'random_flip': 0.5, 'random_crop': 0.5, 'scale': 0.4, 'shift': 0.1, 'depth_scale': 'normal', 'vggt_w': 518, 'vggt_h': 154, 'num_classes': 3, 'num_queries': 50, 'num_feature_levels': 4, 'hidden_dim': 256, 'group_num': 11, 'aux_loss': True, 'with_box_refine': True, 'two_stage': False, 'init_box': False, 'use_dab': False, 'two_stage_dino': False, 'use_dn': False, 'enc_layers': 6, 'dec_layers': 6, 'dim_feedforward': 1024, 'dropout': 0.1, 'nheads': 8, 'enc_n_points': 4, 'dec_n_points': 4, 'num_patterns': 0, 'return_intermediate_dec': True, 'set_cost_class': 2.0, 'set_cost_bbox': 5.0, 'set_cost_giou': 2.0, 'set_cost_3dcenter': 10.0, 'depth_min': '1e-3', 'depth_max': 80.0, 'num_depth_bins': 80, 'cls_loss_coef': 2.0, 'bbox_loss_coef': 5.0, 'giou_loss_coef': 2.0, 'dim_loss_coef': 1.0, 'angle_loss_coef': 1.0, 'depth_loss_coef': 1.0, '3dcenter_loss_coef': 10.0, 'focal_alpha': 0.25, 'max_epoch': 100, 'batch_size': 6, 'num_workers': 4, 'lr': 0.0002, 'lr_backbone': 0.0, 'weight_decay': 0.0001, 'clip_max_norm': 0.1, 'lr_drop': 90, 'warmup_min_lr': 1e-06, 'warmup_epochs': 5, 'save_path': 'outputs', 'resume_model': False, 'score_threshold': 0.2}
+[2026-08-14 19:03:19] INFO World size: 5, Output: outputs/vggt_monodetr_kitti
+[2026-08-14 19:03:19] INFO Evaluation set: 3769 samples
+[2026-08-14 19:03:33] INFO Rank 0: trainable tensors=471, params=18,854,629
+[2026-08-14 19:03:33] INFO ==> Loading from checkpoint 'outputs/vggt_monodetr_kitti/ckpt/checkpoint.pth'
+[2026-08-14 19:03:38] INFO ==> Done
+[2026-08-14 19:03:38] INFO Starting evaluation: checkpoint=outputs/vggt_monodetr_kitti/ckpt/checkpoint.pth, epoch=100
+[2026-08-14 19:04:30] INFO ==> Loading detections and GTs...
+[2026-08-14 19:04:31] INFO ==> Evaluating (official)...
+[2026-08-14 19:06:40] INFO Pedestrian AP@0.50, 0.50, 0.50:
+bbox AP:51.4671, 45.9023, 40.4484
+bev  AP:4.8619, 4.7951, 4.7606
+3d   AP:4.0571, 4.2126, 3.8988
+aos  AP:37.96, 34.16, 30.38
+Pedestrian AP_R40@0.50, 0.50, 0.50:
+bbox AP:49.9228, 42.9540, 37.6418
+bev  AP:3.6980, 3.4786, 2.9416
+3d   AP:2.8178, 2.5756, 2.3718
+aos  AP:34.96, 30.02, 25.99
+Pedestrian AP@0.50, 0.25, 0.25:
+bbox AP:51.4671, 45.9023, 40.4484
+bev  AP:21.9031, 20.1338, 17.8209
+3d   AP:21.4494, 19.9742, 17.3819
+aos  AP:37.96, 34.16, 30.38
+Pedestrian AP_R40@0.50, 0.25, 0.25:
+bbox AP:49.9228, 42.9540, 37.6418
+bev  AP:16.4274, 14.2262, 11.9675
+3d   AP:15.9352, 13.9595, 11.5554
+aos  AP:34.96, 30.02, 25.99
+
+[2026-08-14 19:08:45] INFO Car AP@0.70, 0.70, 0.70:
+bbox AP:78.7573, 61.3303, 54.6074
+bev  AP:8.0926, 7.3760, 6.7682
+3d   AP:4.0887, 4.1641, 3.2862
+aos  AP:76.71, 58.63, 51.39
+Car AP_R40@0.70, 0.70, 0.70:
+bbox AP:79.2066, 60.7939, 54.2941
+bev  AP:6.0781, 4.7708, 3.8705
+3d   AP:2.6504, 2.1405, 1.5788
+aos  AP:77.09, 57.89, 50.65
+Car AP@0.70, 0.50, 0.50:
+bbox AP:78.7573, 61.3303, 54.6074
+bev  AP:30.8881, 23.5480, 21.3490
+3d   AP:25.7198, 20.5086, 17.1120
+aos  AP:76.71, 58.63, 51.39
+Car AP_R40@0.70, 0.50, 0.50:
+bbox AP:79.2066, 60.7939, 54.2941
+bev  AP:28.2871, 19.9774, 17.3074
+3d   AP:22.9437, 16.5052, 14.2275
+aos  AP:77.09, 57.89, 50.65
+
+[2026-08-14 19:10:49] INFO Cyclist AP@0.50, 0.50, 0.50:
+bbox AP:24.9122, 17.4419, 17.7466
+bev  AP:1.0786, 0.8107, 0.8576
+3d   AP:0.6993, 0.6993, 0.6993
+aos  AP:14.62, 9.22, 9.60
+Cyclist AP_R40@0.50, 0.50, 0.50:
+bbox AP:21.0092, 12.0558, 12.2700
+bev  AP:0.5854, 0.2965, 0.3094
+3d   AP:0.1593, 0.1083, 0.1031
+aos  AP:13.73, 7.93, 8.26
+Cyclist AP@0.50, 0.25, 0.25:
+bbox AP:24.9122, 17.4419, 17.7466
+bev  AP:4.6576, 2.4518, 2.5301
+3d   AP:4.6461, 2.4391, 2.4841
+aos  AP:14.62, 9.22, 9.60
+Cyclist AP_R40@0.50, 0.25, 0.25:
+bbox AP:21.0092, 12.0558, 12.2700
+bev  AP:2.9994, 1.6366, 1.7278
+3d   AP:2.9810, 1.6202, 1.5413
+aos  AP:13.73, 7.93, 8.26
+
+[2026-08-14 19:10:49] INFO Evaluation complete: Car Moderate 3D AP_R40=2.1405

@@ -218,7 +218,7 @@ class Aggregator(nn.Module):
         register_token = slice_expand_and_flatten(self.register_token, B, S)
 
         # Concatenate special tokens with patch tokens
-        tokens = torch.cat([camera_token, register_token, patch_tokens], dim=1)
+        tokens = torch.cat([camera_token, register_token, patch_tokens], dim=1) # [25,930,1024]
 
         pos = None
         if self.rope is not None:
@@ -232,7 +232,7 @@ class Aggregator(nn.Module):
             pos = torch.cat([pos_special, pos], dim=1)
 
         # update P because we added special tokens
-        _, P, C = tokens.shape
+        _, P, C = tokens.shape # [25,930,1024]
 
         frame_idx = 0
         global_idx = 0
@@ -262,7 +262,7 @@ class Aggregator(nn.Module):
 
         del frame_intermediates
         del global_intermediates
-        return output_list, self.patch_start_idx
+        return output_list, self.patch_start_idx # ouputlist: output_list[4]: 1,25,930,2048 same with 11 17 23
 
     def _process_frame_attention(self, tokens, B, S, P, C, frame_idx, pos=None):
         """

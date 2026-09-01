@@ -1,6 +1,10 @@
 .hydra/
+.agents/
+.codex/
+
 output/
-ckpt/
+# ckpt/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 /**/__pycache__/
@@ -72,6 +76,7 @@ skyseg.onnx
 # Custom project ignores
 examples/
 output_kitti_val_3d/ply/
+data/
 *.ply
 *.zip
 *.bin

@@ -107,7 +107,7 @@ def main():
     calib_dir = "/root/dataset/kitti/training/calib"
 
     with open(val_txt, "r") as f:
-        val_ids = [line.strip() for line in f if line.strip()][:10]
+        val_ids = [line.strip() for line in f if line.strip()][:100]
 
     img_paths = [os.path.join(img_dir, f"{vid}.png") for vid in val_ids]
     pred_paths = [os.path.join(pred_dir, f"{vid}.txt") for vid in val_ids]
@@ -133,14 +133,14 @@ def main():
 
     print(f"Device: {device}, Precision Dtype: {dtype}")
     print("Loading VGGT-1B Pretrained Model...")
-    model = VGGT.from_pretrained("facebook/VGGT-1B").to(device).eval()
+    model = VGGT.from_pretrained("facebook/VGGT-1B", local_files_only=True).to(device).eval()
 
     scene_data = []
 
     print("\nRunning VGGT 3D Reconstruction & Anchor-Based Scale Alignment...")
     for idx, (vid, p_img, p_pred, p_gt, p_calib) in enumerate(zip(val_ids, img_paths, pred_paths, gt_paths, calib_paths)):
         img_name = f"{vid}.png"
-        print(f"\n  [{idx+1}/10] Processing Val Scene {vid}...")
+        print(f"\n  [{idx+1}/{len(val_ids)}] Processing Val Scene {vid}...")
 
         # 1. Load Calibration & Intrinsics
         P2 = read_kitti_calib(p_calib)
@@ -237,8 +237,11 @@ def main():
             "ply_path": ply_file
         })
 
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
     print(f"\n==========================================================================")
-    print(f"🎉 10 Val Scenes Processed with Text Label & Category Filter Controls!")
+    print(f"🎉 {len(scene_data)} Val Scenes Processed with Text Label & Category Filter Controls!")
     print(f"📁 PLY Files Saved in: {ply_dir}")
     print(f"🌐 Launching Interactive Viser 3D Web Server on http://0.0.0.0:{port}")
     print(f"==========================================================================\n")
@@ -254,9 +257,9 @@ def main():
     gui_btn_next = server.gui.add_button("Next Scene ▶")
     gui_play = server.gui.add_checkbox("Auto Cycle Scenes", initial_value=False)
     
-    # 1. Strict Color Toggles: GT (Red) & Prediction (Green)
-    gui_show_gt = server.gui.add_checkbox("Show GT 3D Boxes (Red)", initial_value=True)
-    gui_show_pred = server.gui.add_checkbox("Show Prediction 3D Boxes (Green)", initial_value=True)
+    # 1. Strict Color Toggles: GT (Green) & Prediction (Red)
+    gui_show_gt = server.gui.add_checkbox("Show GT 3D Boxes (Green)", initial_value=True)
+    gui_show_pred = server.gui.add_checkbox("Show Prediction 3D Boxes (Red)", initial_value=True)
     
     # 2. Text Label Display Toggle ("GT: Car", "Pred: Car 0.98")
     gui_show_labels = server.gui.add_checkbox("Show 3D Text Labels", initial_value=True)
@@ -351,9 +354,9 @@ def main():
         active_cats = [cat for cat, cb in gui_category_toggles.items() if cb.value]
 
         # Update Info text
-        gui_info.content = f"### 📦 KITTI Val Scene `{vid}` (Val Index: {current_scene + 1}/10)\n" \
-                           f"- 🔴 **Ground Truth (GT) Boxes**: `{len(s_data['gt_boxes'])}` boxes\n" \
-                           f"- 🟢 **Prediction Boxes**: `{len(s_data['pred_boxes'])}` boxes\n" \
+        gui_info.content = f"### 📦 KITTI Val Scene `{vid}` (Val Index: {current_scene + 1}/{len(scene_data)})\n" \
+                           f"- 🟢 **Ground Truth (GT) Boxes**: `{len(s_data['gt_boxes'])}` boxes\n" \
+                           f"- 🔴 **Prediction Boxes**: `{len(s_data['pred_boxes'])}` boxes\n" \
                            f"- 🏷️ **Text Labels**: `{'ON' if show_labels else 'OFF'}` | 🔍 **Active Classes**: `{', '.join(active_cats)}`\n" \
                            f"- **Anchor Physical Scale**: `{s_data['global_scale']:.4f}`\n" \
                            f"- **PLY File**: `{os.path.basename(s_data['ply_path'])}`"
@@ -394,15 +397,15 @@ def main():
             )
             camera_nodes.append(cam_node)
 
-        # 1. Render Ground Truth 3D Boxes (Pure RED [255, 0, 0])
+        # 1. Render Ground Truth 3D Boxes (Pure GREEN [0, 230, 118])
         if show_gt:
-            red_color = (255, 0, 0)
-            render_boxes_for_scene(s_data["gt_boxes"], red_color, "gt_box", show_labels)
-
-        # 2. Render Prediction 3D Boxes (High-Contrast GREEN [0, 230, 118])
-        if show_pred:
             green_color = (0, 230, 118)
-            render_boxes_for_scene(s_data["pred_boxes"], green_color, "pred_box", show_labels)
+            render_boxes_for_scene(s_data["gt_boxes"], green_color, "gt_box", show_labels)
+
+        # 2. Render Prediction 3D Boxes (Pure RED [255, 0, 0])
+        if show_pred:
+            red_color = (255, 0, 0)
+            render_boxes_for_scene(s_data["pred_boxes"], red_color, "pred_box", show_labels)
 
         # Update Point Cloud Node
         if point_cloud_node is not None:
@@ -456,13 +459,13 @@ def main():
     @gui_btn_prev.on_click
     def _(_):
         nonlocal current_scene
-        current_scene = (current_scene - 1) % 10
+        current_scene = (current_scene - 1) % len(scene_data)
         gui_scene_select.value = scene_options[current_scene]
 
     @gui_btn_next.on_click
     def _(_):
         nonlocal current_scene
-        current_scene = (current_scene + 1) % 10
+        current_scene = (current_scene + 1) % len(scene_data)
         gui_scene_select.value = scene_options[current_scene]
 
     # Initial Render
@@ -474,7 +477,7 @@ def main():
     while True:
         time.sleep(1.5)
         if gui_play.value:
-            current_scene = (current_scene + 1) % 10
+            current_scene = (current_scene + 1) % len(scene_data)
             gui_scene_select.value = scene_options[current_scene]
 
 if __name__ == "__main__":
